@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Snake</title>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" integrity="sha384-h21C2fcDk/eFsW9sC9h0dhokq5pDinLNklTKoxIZRUn3+hvmgQSffLLQ4G4l2eEr" crossorigin="anonymous">
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+
+	<link rel="stylesheet" type="text/css" href="styles/style.css">
+</head>
+<body>
+	<div class="container">
+		<h1>Play Snake!</h1>
+		<button id="btn-start" class="btn btn-primary btn-sm" onclick="Game.start()"><i class="fa fa-play"></i></button>
+		<button id="btn-pause" class="btn btn-primary btn-sm" onclick="Game.pause()" disabled><i class="fa fa-pause"></i></button>
+		<button id="btn-stop" class="btn btn-primary btn-sm" onclick="Game.stop()"><i class="fa fa-stop"></i></button>
+
+		<canvas id="canvas"></canvas>
+	</div>
+	<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+	<script src="js/Snake.js"></script>
+	<script src="js/Game.js"></script>
+</body>
+</html>
