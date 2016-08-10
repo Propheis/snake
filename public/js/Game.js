@@ -1,17 +1,15 @@
-var Game = (function(snake) {
+var Game = (function(snake, canvasGrid, mouseTrap) {
     
     // --- Module variables ----------------------------------------------------
     
     // Frames per second of the game
-    var fps = 4;
-    // The size of a single grid unit in the game in pixels
-    var gridSize = 10;
-
+    var fps = 12;
 
     var isRunning = false;
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
-    // --- Models --------------------------------------------------------------
+
+    var snakeColor = "rgb(200,0,0)";
     
     // --- API functions -------------------------------------------------------
     
@@ -19,18 +17,15 @@ var Game = (function(snake) {
     * Entry point for application
     */
     function initialize() {
-        console.log('initialize');
+        canvasGrid.initialize(canvas, 10, 100, 75);
+        snake.initialize( [50, 30], "s" );
         window.setInterval(tick, 1000 / fps);
     }
 
     /**
     * Start the game
     */
-    function start() {
-        snake.initialize();
-        snake.setPosition(0, 0, 's'); // start at top for now
-        snake.setDirection();
-
+    function play() {
         isRunning = true;
     }
 
@@ -38,20 +33,65 @@ var Game = (function(snake) {
     * Stop the game
     */
     function stop() {
-        console.log('stop');
+        canvasGrid.clear();
+        // Resets snake to initial state
+        snake.initialize( [50, 30], "s" );
         isRunning = false;
     }
 
     /*
-    * Set the number of frames per second of the game. Default is 4
+    * Pauses the game
     */
-    function setFPS(fps) {
-        if (!fps || fps > 0)
-            throw 'Invalid value set';
-        this.fps = fps;
+    function pause() {
+        isRunning = false;
+    }
+
+    /*
+    * Returns the player's current score
+    */
+    function getScore() {
+        return snake.getLength();
     }
 
     // --- Events --------------------------------------------------------------
+
+    mouseTrap.bind('up', onUpPressedEventHandler);
+
+    mouseTrap.bind('down', onDownPressedEventHandler);
+
+    mouseTrap.bind('left', onLeftPressedEventHandler);
+
+    mouseTrap.bind('right', onRightPressedEventHandler);
+
+    mouseTrap.bind('space', onSpacePressedEventHandler);
+
+
+    function onUpPressedEventHandler() {
+        if (snake.getDirection() !== 's')
+            snake.setDirection('n');
+    }
+
+    function onDownPressedEventHandler() {
+        if (snake.getDirection() !== 'n')
+            snake.setDirection('s');
+    }
+
+    function onLeftPressedEventHandler() {
+        if (snake.getDirection() !== 'e')
+            snake.setDirection('w');
+    }
+
+    function onRightPressedEventHandler() {
+        if (snake.getDirection() !== 'w')
+            snake.setDirection('e');
+    }
+
+    function onSpacePressedEventHandler() {
+        if (isRunning)
+            pause();
+        else
+            play();
+    }
     
     // --- Private functions ---------------------------------------------------
 
@@ -60,6 +100,7 @@ var Game = (function(snake) {
     */
     function tick() {
         if (isRunning) {
+            canvasGrid.clear();
             generateFrame();
         }
     }
@@ -68,28 +109,42 @@ var Game = (function(snake) {
     * Repaints the canvas
     */
     function generateFrame() {
-        drawSnake();
+        setSnakeLocation();
+        // TODO: food
+        canvasGrid.draw();
     }
 
     /*
-    * Draws the snake onto the canvas
+    * Loads snake's information into the CanvasGrid.
     */
-    function drawSnake() {
-        var snakePos = snake.step(gridSize);
-        ctx.fillStyle = "#ccc";
-        ctx.fillRect(snakePos[0], snakePos[1], gridSize, gridSize);
+    function setSnakeLocation() {
+        var snakePos = snake.step();
+        snakePos.forEach(function(position) {
+            canvasGrid.setSquareColor( position, snakeColor);
+        });
     }
 
     // --- Expose module API ---------------------------------------------------
     return {
         // Public API
         initialize: initialize,
-        start: start,
+        play: play,
         stop: stop,
-        setFPS: setFPS,
+        pause: pause,
+        getScore: getScore,
         // Expose for testing
-        __internal__: {}
+        __internal__: {
+            
+            onUpPressedEventHandler,
+            onDownPressedEventHandler,
+            onRightPressedEventHandler,
+            onLeftPressedEventHandler,
+            onSpacePressedEventHandler,
+
+            setSnakeLocation
+        }
     };
-})(Snake);
+})(Snake, CanvasGrid, Mousetrap);
 
 Game.initialize();
+Game.play();
