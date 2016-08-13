@@ -9,7 +9,7 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
 
-    var snakeColor = "rgb(200,0,0)";
+    var snakeColor = "#fff";
     
     // --- API functions -------------------------------------------------------
     
