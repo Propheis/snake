@@ -9,17 +9,7 @@ var CanvasGrid = (function() {
     var _canvasBgColor = "#333";
 
     // --- Models --------------------------------------------------------------
-    var self = {
-        // Public API
-        initialize: initialize,
-        draw: draw,
-        clear: clear,
-        in_Grid: in_Grid,
-        setSquareColor: setSquareColor,
-        getRandomPosition: getRandomPosition,
-        // Expose for testing
-        __internal__: {}
-    };
+
     // --- API functions -------------------------------------------------------
     
     /**
@@ -57,7 +47,6 @@ var CanvasGrid = (function() {
      * Set the value of a square in the grid
      * @param {vector: int[]} - the [x,y] coordinate
      * @param {color:string} - A hex string for a color code to use. Defaults to canvas background color
-     * @returns - Returns itself to support method chaining.
      */
     function setSquareColor(vector, color) {
         var x = vector[0];
@@ -69,13 +58,10 @@ var CanvasGrid = (function() {
             color = _canvasBgColor;
 
         _gridData[x][y] = color;
-
-        return self;
     }
 
     /**
      * Draws the current state onto the canvas
-     * @returns - Returns itself to support method chaining
      */
     function draw() {
         _gridData.forEach(function(col, colIndex) {
@@ -90,13 +76,10 @@ var CanvasGrid = (function() {
                 }
             });
         });
-
-        return self;
     }
 
     /**
     * Clears the CanvasGrid and the canvas
-    * @returns - Returns itself to allow chaining methods 
     */
     function clear() {
        // Clear the canvas
@@ -107,8 +90,6 @@ var CanvasGrid = (function() {
                 _gridData[i][j] = null;
             }
        }
-
-       return self;
    }
 
    /**
@@ -161,5 +142,15 @@ var CanvasGrid = (function() {
     }
 
     // --- Expose module API ---------------------------------------------------
-    return self;
+    return {
+        // Public API
+        initialize: initialize,
+        draw: draw,
+        clear: clear,
+        in_Grid: in_Grid,
+        setSquareColor: setSquareColor,
+        getRandomPosition: getRandomPosition,
+        // Expose for testing
+        __internal__: {}
+    };
 })();
