@@ -1,9 +1,11 @@
 var Snake = (function() {
     
     // --- Module variables ----------------------------------------------------
-    var direction,
-        posX,
-        posY;
+    var _direction = 's';
+    
+    // The array of vector coordinates of the body of the snake.
+    // location[0] is the head of the snake.
+    var _location  = [];
 
     // --- Models --------------------------------------------------------------
 
@@ -11,49 +13,69 @@ var Snake = (function() {
     
     /*
     * Initialize the snake with coordinates and a direction
-    * @param {xPos} - The x - coordinate of the head of the snake
-    * @param {yPos} - The y - coordinate of the head of the snake
+    * @param {vectorPos:int[]} - The [x,y] position as an n=2 array
     * @param {direction:String} - A cardinal direction of travel. e.g. 's'
     */ 
-    function initialize(xPos, yPos, direction) {
-        posX = xPos;
-        posY = yPos;
-        direction = direction;
+    function initialize(vectorPos, direction) {
+        if (!vectorPos || vectorPos.length != 2 || !direction)
+            throw "Invalid arguments";
+
+        _location  = [vectorPos];
+        _direction = direction;
     }
 
     /*
     * Make the snake take a step.
-    * @param {stepSize:int} - The distance to step
-    * @returns {int[]} = the new position of the snake
+    * @param {shouldGrow:bool} - If true, the snake will grow 1 unit longer when it steps.
+    * @returns { [ int[] ] } = the new position of the snake
     */
-    function step(stepSize) {
-        if (!stepSize)
-            throw "Missing argument";
+    function step(shouldGrow) {
+        var posX = _location[0][0],
+            posY = _location[0][1];
 
-        if (direction === "n" || "s")
-            posY = (direction === "s") ? posY + stepSize : posY - stepSize;
+        if (_direction === "n" || _direction === "s")
+            posY = (_direction === "s") ? posY + 1 : posY - 1;
         else
-            posX = (direction === "e") ? posX + stepSize : posX - stepSize;
+            posX = (_direction === "e") ? posX + 1 : posX - 1;
 
-        return getPosition();
+        // Prepend into the location array
+        _location.unshift( [posX, posY] );
+
+        if (!shouldGrow) {
+            // Remove last element from array
+            _location.pop();
+        }
+
+        return getLocation();
     }
 
     /*
-    * Returns this snake's current position as a vector
-    * @return {int[]} - The x,y position of the snake's head
+    * Returns the snake's head's current position as a vector
+    * @return {int[]} - The [x,y] position of the snake's head
     */
-    function getPosition() {
-        return [posX, posY];
+    function getHeadPosition() {
+        return _location[0];
     }
 
     /*
-    * Set the position of the snake's head
-    * @param {x:int} - the x position of the snake's head
-    * @param {y:int} - the y position of the snake's head
+    * Returns the snake's location as an array of vectors
     */
-    function setPosition(x, y) {
-        posX = x;
-        posY = y;
+    function getLocation() {
+        return _location;
+    }
+
+    /*
+    * Returns the current direction of the snake
+    */
+    function getDirection() {
+        return _direction;
+    }
+
+    /*
+    * Returns the length of the snake
+    */
+    function getLength() {
+        return _location.length;
     }
 
     /*
@@ -61,7 +83,7 @@ var Snake = (function() {
     * @param {direction:String} = A cardinal direction of travel. e.g. 's'
     */
     function setDirection(direction) {
-        direction = direction;
+        _direction = direction;
     }
 
     // --- Events --------------------------------------------------------------
@@ -73,8 +95,10 @@ var Snake = (function() {
         // Public API
         initialize: initialize,
         step: step,
-        setPosition: setPosition,
-        getPosition: getPosition,
+        getLocation: getLocation,
+        getHeadPosition: getHeadPosition,
+        getDirection: getDirection,
+        getLength: getLength,
         setDirection: setDirection,
         // Expose for testing
         __internal__: {}
