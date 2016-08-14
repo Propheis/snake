@@ -96,11 +96,11 @@ var CanvasGrid = (function() {
     * Returns true if the coordinates are within the grid. Else returns false
     * @param {vector: int[]} - the [x,y] coordinate
     */
-    function in_Grid(vector) {
+    function isInGrid(vector) {
         var x = vector[0];
         var y = vector[1];
         
-        if (x > _gridData.length || y > _gridData[0].length)
+        if (x >= _gridData.length || y >= _gridData[0].length || x < 0 || y < 0)
             return false;
         return true;
     }
@@ -158,7 +158,7 @@ var CanvasGrid = (function() {
         initialize: initialize,
         draw: draw,
         clear: clear,
-        in_Grid: in_Grid,
+        isInGrid: isInGrid,
         setSquareColor: setSquareColor,
         getRandomPosition: getRandomPosition,
         isSamePosition: isSamePosition,
