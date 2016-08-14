@@ -11,9 +11,6 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
 
     var _timerId;
 
-    // For debugging
-    var _growSnake = false;
-
     /////////////////////////
     //    CONFIGURATION    //
     /////////////////////////
@@ -89,11 +86,6 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
     */
     function getScore() {
         return snake.getLength();
-    }
-
-    // For debugging
-    function growSnake() {
-        _growSnake = true;
     }
 
     // --- Events --------------------------------------------------------------
@@ -176,9 +168,7 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
     */
     function drawSnake() {
         // If snake "ate" the food, make it grow
-        if (canvasGrid.isSamePosition( Food.position, snake.getHeadPosition()) || _growSnake) {
-            _growSnake = false;
-
+        if (canvasGrid.isSamePosition( Food.position, snake.getHeadPosition())) {
             Food.position = null;
             snake.step(true);
         }
