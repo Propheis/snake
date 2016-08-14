@@ -52,8 +52,8 @@ var CanvasGrid = (function() {
         var x = vector[0];
         var y = vector[1];
 
-        if (!x || ! x > 0 || !y || !y > 0)
-            throw "Coordinate values cannot be null";
+        if (x == null || x < 0 || y == null || y < 0)
+            throw "Coordinate values cannot be null or less than 0";
         if (!color)
             color = _canvasBgColor;
 
@@ -107,11 +107,22 @@ var CanvasGrid = (function() {
 
     /*
      * Returns a random position on the canvas
-     * @param {padding: int} - the number of grid squares padding from the edges of the canvas
      * @returns {int[]} - the grid coordinates of the position
     */
     function getRandomPosition() {
-        return [randomInt(0, getCols() - 1), randomInt(0, getRows() - 1)];
+        return [randomInt(0, getRows() - 1), randomInt(0, getCols() - 1)];
+    }
+
+    /*
+    * Returns true if vector1's x,y coordinates exactly match vector2's x,y
+    *  @param {vector1:int[]} - The first position
+    *  @param {vector2:int[]} - The second position
+    */
+    function isSamePosition(vector1, vector2) {
+        if (!Array.isArray(vector1) || !Array.isArray(vector2) || vector1.length !== 2 || vector2.length !== 2 )
+            throw "Arguments are not vectors";
+
+        return (vector1[0] == vector2[0] && vector1[1] == vector2[1]);
     }
 
     // --- Events --------------------------------------------------------------
@@ -150,6 +161,7 @@ var CanvasGrid = (function() {
         in_Grid: in_Grid,
         setSquareColor: setSquareColor,
         getRandomPosition: getRandomPosition,
+        isSamePosition: isSamePosition,
         // Expose for testing
         __internal__: {}
     };

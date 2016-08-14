@@ -3,22 +3,41 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
     // --- Module variables ----------------------------------------------------
     
     // Frames per second of the game
-    var fps = 12;
 
     var isRunning = false;
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
 
+    // For debugging
+    var _growSnake = false;
+
+    /////////////////////////
+    //    CONFIGURATION    //
+    /////////////////////////
+    var fps = 24;
+
     var snakeColor = "#fff";
+    var foodColor  = "#eded40";
     
+    var squareSize = 10;
+    var squaresX   = 100;
+    var squaresY   = 75; 
+
+
+    // --- Models --------------------------------------------------------------
+    
+    var Food = {
+        position: null
+    }
+
     // --- API functions -------------------------------------------------------
     
     /*
     * Entry point for application
     */
     function initialize() {
-        canvasGrid.initialize(canvas, 10, 100, 75);
-        snake.initialize( [50, 30], "s" );
+        canvasGrid.initialize(canvas, squareSize, squaresX, squaresY);
+        snake.initialize( [Math.round(squaresX / 2), Math.round(squaresY / 2)], "s" );
         window.setInterval(tick, 1000 / fps);
     }
 
@@ -35,7 +54,7 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
     function stop() {
         canvasGrid.clear();
         // Resets snake to initial state
-        snake.initialize( [50, 30], "s" );
+        snake.initialize( [Math.round(squaresX / 2), Math.round(squaresY / 2)], "s" );
         isRunning = false;
     }
 
@@ -53,6 +72,11 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
         return snake.getLength();
     }
 
+    // For debugging
+    function growSnake() {
+        _growSnake = true;
+    }
+
     // --- Events --------------------------------------------------------------
 
     mouseTrap.bind('up', onUpPressedEventHandler);
@@ -64,7 +88,6 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
     mouseTrap.bind('right', onRightPressedEventHandler);
 
     mouseTrap.bind('space', onSpacePressedEventHandler);
-
 
     function onUpPressedEventHandler() {
         if (snake.getDirection() !== 's')
@@ -109,19 +132,41 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
     * Repaints the canvas
     */
     function generateFrame() {
-        setSnakeLocation();
-        // TODO: food
+        
+        drawFood();
+
+        drawSnake();
+
         canvasGrid.draw();
     }
 
     /*
-    * Loads snake's information into the CanvasGrid.
+    * Sets the snake's next location in the game
     */
-    function setSnakeLocation() {
-        var snakePos = snake.step();
-        snakePos.forEach(function(position) {
+    function drawSnake() {
+        // If snake "ate" the food, make it grow
+        if (canvasGrid.isSamePosition( Food.position, snake.getHeadPosition()) || _growSnake) {
+            _growSnake = false;
+
+            Food.position = null;
+            snake.step(true);
+        }
+        else
+            snake.step();
+
+        snake.getLocation().forEach(function(position) {
             canvasGrid.setSquareColor( position, snakeColor);
         });
+    }
+
+    /*
+    * Loads the food's location info into the CanvasGrid.
+    */
+    function drawFood() {
+        if ( Food.position === null )
+            Food.position = canvasGrid.getRandomPosition();
+
+        canvasGrid.setSquareColor(Food.position, foodColor);
     }
 
     // --- Expose module API ---------------------------------------------------
@@ -132,6 +177,7 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
         stop: stop,
         pause: pause,
         getScore: getScore,
+        growSnake: growSnake,
         // Expose for testing
         __internal__: {
             
@@ -140,8 +186,6 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
             onRightPressedEventHandler,
             onLeftPressedEventHandler,
             onSpacePressedEventHandler,
-
-            setSnakeLocation
         }
     };
 })(Snake, CanvasGrid, Mousetrap);
