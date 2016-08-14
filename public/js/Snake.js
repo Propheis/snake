@@ -30,16 +30,10 @@ var Snake = (function() {
     * @returns { [ int[] ] } = the new position of the snake
     */
     function step(shouldGrow) {
-        var posX = _location[0][0],
-            posY = _location[0][1];
-
-        if (_direction === "n" || _direction === "s")
-            posY = (_direction === "s") ? posY + 1 : posY - 1;
-        else
-            posX = (_direction === "e") ? posX + 1 : posX - 1;
+        
 
         // Prepend into the location array
-        _location.unshift( [posX, posY] );
+        _location.unshift( getNextStep() );
 
         if (!shouldGrow) {
             // Remove last element from array
@@ -79,11 +73,50 @@ var Snake = (function() {
     }
 
     /*
+    * Returns the snake's next step. Does not change the state of the snake.
+    */
+    function getNextStep() {
+        var posX = _location[0][0],
+            posY = _location[0][1];
+
+        if (_direction === "n" || _direction === "s")
+            posY = (_direction === "s") ? posY + 1 : posY - 1;
+        else
+            posX = (_direction === "e") ? posX + 1 : posX - 1;
+
+        return [posX, posY];
+    }
+
+    /*
     * Set the new direction of the snake
     * @param {direction:String} = A cardinal direction of travel. e.g. 's'
     */
     function setDirection(direction) {
         _direction = direction;
+    }
+
+    /*
+    * Returns true if the snake's body is overlapping itself anywhere.
+    * @returns {bool} - True if snake ran into itself.
+    */
+    function ranIntoItself() {
+        if (_location.length === 1)
+            return false;
+
+        for (var i = 0; i < _location.length / 2; i++) {
+            var current = _location[i];
+
+            for (var j = i + 1; j < _location.length; j++) {
+                
+                if (i == j)
+                    continue;
+
+                var other = _location[j];
+
+                if (current[0] == other[0] && current[1] == other[1])
+                    return true;
+            }
+        }
     }
 
     // --- Events --------------------------------------------------------------
@@ -99,7 +132,9 @@ var Snake = (function() {
         getHeadPosition: getHeadPosition,
         getDirection: getDirection,
         getLength: getLength,
+        getNextStep: getNextStep,
         setDirection: setDirection,
+        ranIntoItself: ranIntoItself,
         // Expose for testing
         __internal__: {}
     };
