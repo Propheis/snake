@@ -26,13 +26,18 @@
 				</div>
 			</header>
 
-			<canvas id="canvas" onclick="Game.growSnake()"></canvas>
+			<canvas id="canvas"></canvas>
 		</div>
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/mousetrap/1.6.0/mousetrap.min.js" integrity="sha256-cI6c0RAK5q+/PzZXNmB5mMPKblpa0klejvR+5hWZKQI=" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/knockout/3.4.0/knockout.js" integrity="sha256-ly8TiTtwVsBWdjekTqTJlLGz3Rsg4YXr80eK6QhtdMs=" crossorigin="anonymous"></script>
 	<script src="js/Snake.js"></script>
 	<script src="js/CanvasGrid.js"></script>
+	<script src="js/GameState.js"></script>
 	<script src="js/Game.js"></script>
+	<script>
+		Game.initialize();
+	</script>
 </body>
 </html>

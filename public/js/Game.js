@@ -1,19 +1,10 @@
-var Game = (function(snake, canvasGrid, mouseTrap) {
+var Game = (function(snake, canvasGrid, mouseTrap, gameState) {
     
     // --- Module variables ----------------------------------------------------
     
-    // Frames per second of the game
-
-    var isRunning = false;
-    var playerChangingDirection = false;
-    var canvas = document.getElementById('canvas');
-    var ctx = canvas.getContext('2d');
-
-    var _timerId;
-
-    /////////////////////////
-    //    CONFIGURATION    //
-    /////////////////////////
+    //////////////////////////
+    //    CONFIGURATION     //
+    //////////////////////////
     var fps = 24;
 
     var snakeBodyColor  = "#fff";
@@ -23,6 +14,15 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
     var squareSize      = 10;
     var squaresX        = 100;
     var squaresY        = 75; 
+
+    //////////////////////////
+    //  Internal Variables  //
+    //////////////////////////
+    var _playerChangingDirection = false;
+    var _canvas = document.getElementById('canvas');
+
+    var currentGameState = gameState.stopped;
+    var _gameOverCallback;
 
 
     // --- Models --------------------------------------------------------------
@@ -37,26 +37,24 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
     * Entry point for application
     */
     function initialize() {
-        canvasGrid.initialize(canvas, squareSize, squaresX, squaresY);
+        canvasGrid.initialize(_canvas, squareSize, squaresX, squaresY);
         snake.initialize( [Math.round(squaresX / 2), Math.round(squaresY / 2)], "s" );
         setupKeyBindings();
+        window.setInterval(tick, 1000 / fps);
     }
 
     /**
     * Start the game
     */
     function play() {
-        isRunning = true;
-        _timerId = window.setInterval(tick, 1000 / fps);
+        currentGameState = gameState.playing;
     }
 
     /*
     * Stop the game
     */
     function stop() {
-        window.clearInterval(_timerId);
-
-        isRunning = false;
+        currentGameState = gameState.stopped;
         
         // Resets snake to initial state
         snake.initialize( [Math.round(squaresX / 2), Math.round(squaresY / 2)], "s" );
@@ -71,14 +69,14 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
     * Pauses the game
     */
     function pause() {
-        isRunning = false;
+        currentGameState = gameState.paused;
     }
 
     /*
     * Resumes the game
     */
     function resume() {
-        isRunning = true;
+        currentGameState = gameState.playing;
     }
 
     /*
@@ -88,45 +86,53 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
         return snake.getLength();
     }
 
+    /*
+    * Pass in a callback when the game ends. Function is given the score as an int on game over
+    *  @param {callback:int} - The finishing score of the player at the end of the game
+    */
+    function setGameOverCallback(callback) {
+        _gameOverCallback = callback;
+    }
+
     // --- Events --------------------------------------------------------------
 
     function onUpPressedEventHandler() {
-        if (snake.getDirection() !== 's' && !playerChangingDirection) {
+        if (snake.getDirection() !== 's' && !_playerChangingDirection) {
             snake.setDirection('n');
-            playerChangingDirection = true;
+            _playerChangingDirection = true;
         }
     }
 
     function onDownPressedEventHandler() {
-        if (snake.getDirection() !== 'n' && !playerChangingDirection) {
+        if (snake.getDirection() !== 'n' && !_playerChangingDirection) {
             snake.setDirection('s');
-            playerChangingDirection = true;
+            _playerChangingDirection = true;
         }
     }
 
     function onLeftPressedEventHandler() {
-        if (snake.getDirection() !== 'e' && !playerChangingDirection) {
+        if (snake.getDirection() !== 'e' && !_playerChangingDirection) {
             snake.setDirection('w');
-            playerChangingDirection = true;
+            _playerChangingDirection = true;
         }
     }
 
     function onRightPressedEventHandler() {
-        if (snake.getDirection() !== 'w' && !playerChangingDirection) {
+        if (snake.getDirection() !== 'w' && !_playerChangingDirection) {
             snake.setDirection('e');
-            playerChangingDirection = true;
+            _playerChangingDirection = true;
         }
     }
 
     function onSpacePressedEventHandler() {
-        if (isRunning)
+        if (currentGameState === gameState.playing)
             pause();
         else
             resume();
     }
 
     function onEnterPressedEventHandler() {
-        if (isRunning)
+        if (currentGameState === gameState.playing)
             return;
         stop();
         play();
@@ -138,7 +144,7 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
     * Logic to be run every tick of the game.
     */
     function tick() {
-        if (isRunning) {
+        if (currentGameState === gameState.playing) {
             canvasGrid.clear();
             generateFrame();
         }
@@ -154,7 +160,7 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
         }
 
         // Fix to make sure player doesn't change direction twice in one frame
-        playerChangingDirection = false;
+        _playerChangingDirection = false;
         
         drawFood();
 
@@ -208,8 +214,10 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
     }
 
     function endGame() {
-        console.log("Game over");
+        currentGameState = GameState.stopped;
         stop();
+        if (_gameOverCallback)
+            _gameOverCallback( getScore() );
     }
 
     /*
@@ -228,16 +236,18 @@ var Game = (function(snake, canvasGrid, mouseTrap) {
     return {
         // Public API
         initialize: initialize,
+
         play: play,
         stop: stop,
         pause: pause,
+        
         getScore: getScore,
-        growSnake: growSnake,
+        currentGameState: currentGameState,
+
+        setGameOverCallback: setGameOverCallback,
         // Expose for testing
         __internal__: {
             
         }
     };
-})(Snake, CanvasGrid, Mousetrap);
-
-Game.initialize();
+})(Snake, CanvasGrid, Mousetrap, GameState);
